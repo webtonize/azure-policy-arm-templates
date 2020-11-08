@@ -1,0 +1,118 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        
+    },
+    "variables": {
+        
+    },
+    "resources": [
+        {
+            "name": "deploy-high-CPU-alertrule-for-app-serviceplans",
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "apiVersion": "2018-05-01",
+            "location": "West Europe",
+            "properties": {
+                "displayName": "Deploy high CPU alert rule for App Serviceplans",
+                "policyType": "Custom",
+                "mode": "All",
+                "parameters": {
+                    "cpu_threshold": {
+                        "type": "integer",
+                        "defaultValue": 90
+                    }
+                },
+                "policyRule": {
+                    "if": {
+                        "field": "type",
+                        "equals": "Microsoft.Web/serverfarms"
+                    },
+                    "then": {
+                        "effect": "DeployIfNotExists",
+                        "details": {
+                            "type": "microsoft.insights/metricAlerts",
+                            "resourceGroupName": "[[resourceGroup().name]",
+                            "existenceCondition": {
+                                "field": "name",
+                                "equals": "[[concat(field('Name'),'_App_ServicePlan_High_CPU')]"
+                            },
+                            "roleDefinitionIds": [
+                                "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa')]",
+                                "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/2cc479cb-7b4d-49a8-b449-8c00fd0f0a4b')]"
+                            ],
+                            "deployment": {
+                                "properties": {
+                                    "mode": "incremental",
+                                    "template": {
+                                        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                        "contentVersion": "1.0.0.0",
+                                        "parameters": {
+                                            "metricAlerts_name": {
+                                                "type": "String"
+                                            },
+                                            "serverFarms_externalid": {
+                                                "type": "String"
+                                            },
+                                        },
+                                        "variables": {},
+                                        "resources": [
+                                            {
+                                                "type": "microsoft.insights/metricAlerts",
+                                                "apiVersion": "2018-03-01",
+                                                "name": "[[parameters('metricAlerts_name')]",
+                                                "location": "global",
+                                                "properties": {
+                                                    "description": "App Service Plan roderickb-apm-azure-lab-asp has avergae CPU usage above 90% for the last 5 minutes",
+                                                    "severity": 3,
+                                                    "enabled": true,
+                                                    "scopes": [
+                                                        "[[parameters('web_serverFarms_externalid')]"
+                                                    ],
+                                                    "evaluationFrequency": "PT1M",
+                                                    "windowSize": "PT5M",
+                                                    "criteria": {
+                                                        "allOf": [
+                                                            {
+                                                                "threshold": "[[parameters('cpu_threshold')]",
+                                                                "name": "Metric1",
+                                                                "metricNamespace": "Microsoft.Web/serverFarms",
+                                                                "metricName": "CpuPercentage",
+                                                                "dimensions": [],
+                                                                "operator": "GreaterThan",
+                                                                "timeAggregation": "Average",
+                                                                "criterionType": "StaticThresholdCriterion"
+                                                            }
+                                                        ],
+                                                        "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                                                    },
+                                                    "autoMitigate": true,
+                                                    "targetResourceType": "Microsoft.Web/serverFarms",
+                                                    "targetResourceRegion": "westeurope",
+                                                    "actions": []
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "parameters": {
+                                        "metricAlerts_name": {
+                                            "value": "[[concat(field('Name'),'_App_ServicePlan_High_CPU')]"
+                                        },
+                                        "web_serverFarms_externalid": {
+                                            "value": "[[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/serverFarms/', field('fullName'))]"
+                                        },
+                                        "cpu_threshold": {
+                                            "value": "[[parameters('cpu_threshold')]"
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "id": "/subscriptions/b401c31c-afee-453b-8b65-5257c55928b3/providers/Microsoft.Authorization/policyDefinitions/__INSERT_POLICY_NAME_HERE__"
+        }
+    ]
+}

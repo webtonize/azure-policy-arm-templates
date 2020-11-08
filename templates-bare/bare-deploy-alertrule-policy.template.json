@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        
+    },
+    "variables": {
+        
+    },
+    "resources": [
+        {
+            "name": "name-your-policy-resource-here",
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "apiVersion": "2018-05-01",
+            "location": "__INSERT_YOUR_REGION_HERE__",
+            "properties": {
+                "displayName": "__INSERT_A_DISPLAYNAME_FOR_YOUR_POLICY_HERE__",
+                "policyType": "Custom",
+                "mode": "All",
+                "parameters": { },
+                "policyRule": {
+                    "if": { },
+                    "then": {
+                        "effect": "DeployIfNotExists",
+                        "details": {
+                            "type": "microsoft.insights/metricAlerts",
+                            "resourceGroupName": "[[resourceGroup().name]",
+                            "existenceCondition": {
+                                "field": "name",
+                                "equals": "[[concat(field('Name'),'_App_ServicePlan_High_CPU')]"
+                            },
+                            "roleDefinitionIds": [
+                                "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa')]",
+                                "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/2cc479cb-7b4d-49a8-b449-8c00fd0f0a4b')]"
+                            ],
+                            "deployment": {
+                                "properties": {
+                                    "mode": "incremental",
+                                    "template": {},
+                                    "parameters": { }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "id": "/subscriptions/__INSERT_YOUR_SUBSCRIPTION_ID_HERE__/providers/Microsoft.Authorization/policyDefinitions/__INSERT_POLICY_NAME_HERE__"
+        }
+    ]
+}

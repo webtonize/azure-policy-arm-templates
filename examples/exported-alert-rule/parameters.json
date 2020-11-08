@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "metricAlerts_asp_high_cpu_alert_name": {
+            "value": null
+        },
+        "serverFarms_roderickb_apm_azure_lab_asp_externalid": {
+            "value": null
+        }
+    }
+}

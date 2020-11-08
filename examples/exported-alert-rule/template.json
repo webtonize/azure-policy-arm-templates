@@ -1,0 +1,52 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "metricAlerts_asp_high_cpu_alert_name": {
+            "defaultValue": "asp-high-cpu-alert",
+            "type": "String"
+        },
+        "serverFarms_roderickb_apm_azure_lab_asp_externalid": {
+            "defaultValue": "/subscriptions/b401c31c-afee-453b-8b65-5257c55928b3/resourceGroups/roderickb-apm-azure-lab-rg/providers/Microsoft.Web/serverFarms/roderickb-apm-azure-lab-asp",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_asp_high_cpu_alert_name')]",
+            "location": "global",
+            "properties": {
+                "description": "App Service Plan roderickb-apm-azure-lab-asp has avergae CPU usage above 90% for the last 5 minutes",
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[parameters('serverFarms_roderickb_apm_azure_lab_asp_externalid')]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 90,
+                            "name": "Metric1",
+                            "metricNamespace": "Microsoft.Web/serverFarms",
+                            "metricName": "CpuPercentage",
+                            "dimensions": [],
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "Microsoft.Web/serverFarms",
+                "targetResourceRegion": "westeurope",
+                "actions": []
+            }
+        }
+    ]
+}
